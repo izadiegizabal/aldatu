@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Aldatu</string>
+
+    <!-- MAIN SCREEN -->
+    <string name="ms_error_fetching_rates">We couldn\'t get the currency rates at this time. \nIf the issue persists contact us ✉️</string>
+    <string name="ms_btn_error_fetching_rates_try_again">Try again</string>
+    <string name="ms_btn_error_fetching_not_optimal">Load saved rates</string>
+    <string name="ms_info_select_amount">Select an amount to convert first 🙇‍♂️</string>
+    <string name="ms_refresh_time">Rates updated at %1$s️</string>
+
+    <!-- MAIN SCREEN FAB -->
+    <string name="ms_fab_default_text">Select Amount</string>
+    <string name="ms_fab_selected_amount">%1$s %2$s</string>
+
+    <!-- CURRENCY SELECTOR-->
+    <string name="cs_amount_placeholder">Amount to convert 💵</string>
+</resources>

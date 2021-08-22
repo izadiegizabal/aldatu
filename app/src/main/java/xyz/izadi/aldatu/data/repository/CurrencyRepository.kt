@@ -40,7 +40,7 @@ class CurrencyRepository(
                         }
                         false -> {
                             emit(
-                                Result.error<List<Currency>>(
+                                Result.error(
                                     message = response.message(),
                                     errorCode = response.code()
                                 )
@@ -49,7 +49,7 @@ class CurrencyRepository(
                         }
                     }
                 } else {
-                    emit(noInternetError<List<Currency>>())
+                    emit(noInternetError())
                     return@flow
                 }
 
@@ -77,7 +77,7 @@ class CurrencyRepository(
                         }
                         false -> {
                             emit(
-                                Result.error<List<CurrencyRate>>(
+                                Result.error(
                                     message = response.message(),
                                     errorCode = response.code()
                                 )

@@ -87,7 +87,7 @@ class MainViewModelTest : TestCase() {
         val mockFrom = Currency("EUR", "Euro")
         `when`(preferencesManager.getDefaultCurrency()).thenReturn(mockFrom)
         sut = MainViewModel(currencyRepository, preferencesManager)
-        val sampleMap = hashMapOf<String, Double>(Pair("USDEUR", 0.85), Pair("USDJPY", 109.22))
+        val sampleMap = hashMapOf(Pair("USDEUR", 0.85), Pair("USDJPY", 109.22))
         sut.rates.value = sampleMap
 
         // act
@@ -105,7 +105,7 @@ class MainViewModelTest : TestCase() {
         val mockFrom = Currency("EUR", "Euro")
         `when`(preferencesManager.getDefaultCurrency()).thenReturn(mockFrom)
         sut = MainViewModel(currencyRepository, preferencesManager)
-        val sampleMap = hashMapOf<String, Double>(Pair("USDEUR", 0.85), Pair("USDJPY", 109.22))
+        val sampleMap = hashMapOf(Pair("USDEUR", 0.85), Pair("USDJPY", 109.22))
         sut.rates.value = sampleMap
 
         // act

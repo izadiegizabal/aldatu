@@ -6,7 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import xyz.izadi.aldatu.data.local.CurrencyDao
+import xyz.izadi.aldatu.data.local.CurrencyListDao
+import xyz.izadi.aldatu.data.local.CurrencyRatesDao
 import xyz.izadi.aldatu.data.local.PreferencesManager
 import xyz.izadi.aldatu.data.remote.CurrencyApi
 import xyz.izadi.aldatu.data.repository.CurrencyRepository
@@ -19,8 +20,9 @@ class RepositoryModule {
     @Provides
     fun providesRepository(
         api: CurrencyApi,
-        dao: CurrencyDao,
+        listDao: CurrencyListDao,
+        ratesDao: CurrencyRatesDao,
         @ApplicationContext appContext: Context,
         prefManager: PreferencesManager
-    ) = CurrencyRepository(api, dao, appContext, prefManager)
+    ) = CurrencyRepository(api, listDao, ratesDao, appContext, prefManager)
 }

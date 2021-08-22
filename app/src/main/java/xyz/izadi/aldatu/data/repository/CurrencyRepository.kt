@@ -4,17 +4,17 @@ import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import xyz.izadi.aldatu.data.local.Currency
-import xyz.izadi.aldatu.data.local.CurrencyDao
+import xyz.izadi.aldatu.data.local.CurrencyListDao
 import xyz.izadi.aldatu.data.local.CurrencyRate
+import xyz.izadi.aldatu.data.local.CurrencyRatesDao
 import xyz.izadi.aldatu.data.local.PreferencesManager
 import xyz.izadi.aldatu.data.remote.CurrencyApi
 import xyz.izadi.aldatu.utils.isNetworkAvailable
-import java.util.*
-
 
 class CurrencyRepository(
     private val currencyApi: CurrencyApi,
-    private val currencyDao: CurrencyDao,
+    private val currencyListDao: CurrencyListDao,
+    private val currencyRatesDao: CurrencyRatesDao,
     private val appContext: Context,
     private val prefManager: PreferencesManager
 ) {
@@ -28,13 +28,13 @@ class CurrencyRepository(
     suspend fun getCurrencies(): Flow<Result<List<Currency>>> {
         return flow {
             emit(Result.loading())
-            if (!currencyDao.doWeHaveCurrencies()) {
+            if (!currencyListDao.doWeHaveCurrencies()) {
                 if (appContext.isNetworkAvailable()) {
                     val response = currencyApi.getSupportedCountries()
                     when (response.isSuccessful) {
                         true -> response.body()?.currenciesMap?.let {
                             val currencies = Currency.from(it)
-                            currencyDao.saveCurrencies(currencies)
+                            currencyListDao.saveCurrencies(currencies)
                             emit(Result.success(currencies))
                             return@flow
                         }
@@ -54,14 +54,14 @@ class CurrencyRepository(
                 }
 
             }
-            emit(Result.success(currencyDao.loadCurrencyList()))
+            emit(Result.success(currencyListDao.loadCurrencyList()))
         }
     }
 
     suspend fun getExchangeRates(forceRefresh: Boolean = false): Flow<Result<List<CurrencyRate>>> {
         return flow {
             emit(Result.loading())
-            if (forceRefresh || prefManager.shouldRefreshRates() || !currencyDao.doWeHaveRates()) {
+            if (forceRefresh || prefManager.shouldRefreshRates() || !currencyRatesDao.doWeHaveRates()) {
                 if (appContext.isNetworkAvailable()) {
                     val response = currencyApi.getCurrencyRates()
                     when (response.isSuccessful) {
@@ -70,7 +70,7 @@ class CurrencyRepository(
                                 map = it.rates,
                                 timestamp = it.timestamp?.toLong() ?: System.currentTimeMillis()
                             )
-                            currencyDao.saveCurrencyRates(rates)
+                            currencyRatesDao.saveCurrencyRates(rates)
                             prefManager.saveRefreshDate()
                             emit(Result.success(rates))
                             return@flow
@@ -87,7 +87,7 @@ class CurrencyRepository(
                     }
                 } else {
                     // try to get existing currencies even though they are outdated to still have functionality
-                    val prevRates = currencyDao.loadCurrencyRates()
+                    val prevRates = currencyRatesDao.loadCurrencyRates()
                     if (!forceRefresh && prevRates.isNotEmpty()) {
                         emit(Result.success(prevRates))
                     } else {
@@ -96,7 +96,7 @@ class CurrencyRepository(
                     return@flow
                 }
             }
-            emit(Result.success(currencyDao.loadCurrencyRates()))
+            emit(Result.success(currencyRatesDao.loadCurrencyRates()))
         }
     }
 }

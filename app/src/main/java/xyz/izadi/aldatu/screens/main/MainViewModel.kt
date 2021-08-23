@@ -1,6 +1,7 @@
 package xyz.izadi.aldatu.screens.main
 
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,28 +12,46 @@ import kotlinx.coroutines.launch
 import xyz.izadi.aldatu.data.local.Currency
 import xyz.izadi.aldatu.data.local.CurrencyRate
 import xyz.izadi.aldatu.data.local.PreferencesManager
-import xyz.izadi.aldatu.data.repository.CurrencyRepository
 import xyz.izadi.aldatu.data.repository.Result
+import xyz.izadi.aldatu.domain.usecase.FetchCurrencyListUseCase
+import xyz.izadi.aldatu.domain.usecase.FetchCurrencyRatesUseCase
 import xyz.izadi.aldatu.utils.Constants
 import xyz.izadi.aldatu.utils.getFormattedString
+import xyz.izadi.aldatu.utils.postValue
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val currencyRepository: CurrencyRepository,
+    private val fetchCurrencyListUseCase: FetchCurrencyListUseCase,
+    private val fetchCurrencyRatesUseCase: FetchCurrencyRatesUseCase,
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
-    var refreshDate = MutableLiveData<String?>(null)
-    var currencyList = MutableLiveData<List<Currency>>(null)
+    val refreshDate: LiveData<String?> by lazy {
+        MutableLiveData(null)
+    }
 
-    val currencyRatesState = MutableLiveData<Result<List<CurrencyRate>>>()
-    val currencyRates = MutableLiveData<List<CurrencyRate>>(null)
+    val currencyList: LiveData<List<Currency>> by lazy {
+        MutableLiveData(null)
+    }
+
+    val currencyRatesState: LiveData<Result<List<CurrencyRate>>> by lazy {
+        MutableLiveData()
+    }
+    val currencyRates: LiveData<List<CurrencyRate>> by lazy {
+        MutableLiveData(null)
+    }
 
     @VisibleForTesting
-    val rates = MutableLiveData<Map<String, Double>>(null)
+    val rates: LiveData<Map<String, Double>> by lazy {
+        MutableLiveData(null)
+    }
 
-    val currentAmount = MutableLiveData<Float?>(preferencesManager.getDefaultAmount())
-    val currentCurrency = MutableLiveData(preferencesManager.getDefaultCurrency())
+    val currentAmount: LiveData<Float?> by lazy {
+        MutableLiveData(preferencesManager.getDefaultAmount())
+    }
+    val currentCurrency: LiveData<Currency> by lazy {
+        MutableLiveData(preferencesManager.getDefaultCurrency())
+    }
 
     init {
         loadCurrencies()
@@ -40,14 +59,14 @@ class MainViewModel @Inject constructor(
 
     fun loadCurrencies(forceRefresh: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
-            currencyRepository.getCurrencies().collect {
+            fetchCurrencyListUseCase.invoke().collect {
                 if (it.status == Result.Status.SUCCESS) {
                     currencyList.postValue(it.data)
                 }
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            currencyRepository.getExchangeRates(forceRefresh).collect {
+            fetchCurrencyRatesUseCase.invoke(forceRefresh).collect {
                 currencyRatesState.postValue(it)
                 if (it.status == Result.Status.SUCCESS) {
                     rates.postValue(CurrencyRate.from(it.data))
@@ -60,14 +79,14 @@ class MainViewModel @Inject constructor(
 
     fun setNewAmount(newValueString: String) {
         val newValue = newValueString.toFloatOrNull()
-        currentAmount.value = newValue
+        currentAmount.postValue(newValue)
         if (newValue != null) {
             preferencesManager.setDefaultAmount(newValue)
         }
     }
 
     fun selectCurrency(newCurrency: Currency) {
-        currentCurrency.value = newCurrency
+        currentCurrency.postValue(newCurrency)
         preferencesManager.setDefaultCurrency(newCurrency)
     }
 

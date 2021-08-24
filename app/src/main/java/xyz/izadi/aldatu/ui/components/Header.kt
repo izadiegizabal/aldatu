@@ -7,26 +7,26 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.statusBarsPadding
-import xyz.izadi.aldatu.R
 
 @Composable
-fun Header(refreshDate: String?) {
+fun Header(title: String?, subtitle: String?) {
     Spacer(
         modifier = Modifier
             .statusBarsPadding()
             .fillMaxWidth()
     )
-    Text(
-        text = stringResource(R.string.app_name),
-        style = MaterialTheme.typography.h2,
-        modifier = Modifier.padding(horizontal = 8.dp)
-    )
-    refreshDate?.let {
+    title?.let {
         Text(
-            text = stringResource(R.string.ms_refresh_time, it),
+            text = it,
+            style = MaterialTheme.typography.h2,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+    }
+    subtitle?.let {
+        Text(
+            text = it,
             style = MaterialTheme.typography.subtitle1,
             modifier = Modifier
                 .fillMaxWidth()

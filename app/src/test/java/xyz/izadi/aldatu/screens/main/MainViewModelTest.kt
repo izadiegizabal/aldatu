@@ -73,7 +73,7 @@ class MainViewModelTest : TestCase() {
         val newCurrency = Currency("USD", "Dollars")
 
         // act
-        sut.selectCurrency(newCurrency)
+        sut.setNewCurrency(newCurrency)
 
         // assert
         assertEquals(newCurrency, sut.currentCurrency.value)

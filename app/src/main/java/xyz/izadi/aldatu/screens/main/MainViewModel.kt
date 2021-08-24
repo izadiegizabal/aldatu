@@ -15,9 +15,11 @@ import xyz.izadi.aldatu.data.local.PreferencesManager
 import xyz.izadi.aldatu.data.repository.Result
 import xyz.izadi.aldatu.domain.usecase.FetchCurrencyListUseCase
 import xyz.izadi.aldatu.domain.usecase.FetchCurrencyRatesUseCase
+import xyz.izadi.aldatu.ui.components.currencyselector.CurrencySelectorViewModel
 import xyz.izadi.aldatu.utils.Constants
 import xyz.izadi.aldatu.utils.getFormattedString
 import xyz.izadi.aldatu.utils.postValue
+import xyz.izadi.aldatu.utils.setValue
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,31 +27,28 @@ class MainViewModel @Inject constructor(
     private val fetchCurrencyListUseCase: FetchCurrencyListUseCase,
     private val fetchCurrencyRatesUseCase: FetchCurrencyRatesUseCase,
     private val preferencesManager: PreferencesManager
-) : ViewModel() {
+) : ViewModel(), CurrencySelectorViewModel {
+
+    @VisibleForTesting
+    val rates: LiveData<Map<String, Double>?> by lazy {
+        MutableLiveData(null)
+    }
     val refreshDate: LiveData<String?> by lazy {
         MutableLiveData(null)
     }
-
-    val currencyList: LiveData<List<Currency>> by lazy {
+    val currencyRatesState: LiveData<Result<List<CurrencyRate>>?> by lazy {
         MutableLiveData(null)
     }
-
-    val currencyRatesState: LiveData<Result<List<CurrencyRate>>> by lazy {
-        MutableLiveData()
-    }
-    val currencyRates: LiveData<List<CurrencyRate>> by lazy {
+    val currencyRates: LiveData<List<CurrencyRate>?> by lazy {
         MutableLiveData(null)
     }
-
-    @VisibleForTesting
-    val rates: LiveData<Map<String, Double>> by lazy {
+    override val currencyList: LiveData<List<Currency>?> by lazy {
         MutableLiveData(null)
     }
-
-    val currentAmount: LiveData<Float?> by lazy {
+    override val currentAmount: LiveData<Float?> by lazy {
         MutableLiveData(preferencesManager.getDefaultAmount())
     }
-    val currentCurrency: LiveData<Currency> by lazy {
+    override val currentCurrency: LiveData<Currency?> by lazy {
         MutableLiveData(preferencesManager.getDefaultCurrency())
     }
 
@@ -77,19 +76,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun setNewAmount(newValueString: String) {
-        val newValue = newValueString.toFloatOrNull()
-        currentAmount.postValue(newValue)
-        if (newValue != null) {
-            preferencesManager.setDefaultAmount(newValue)
-        }
-    }
-
-    fun selectCurrency(newCurrency: Currency) {
-        currentCurrency.postValue(newCurrency)
-        preferencesManager.setDefaultCurrency(newCurrency)
-    }
-
     fun getConversion(from: Currency?, to: String): Float? {
         rates.value?.let {
             return CurrencyRate.convert(
@@ -101,5 +87,18 @@ class MainViewModel @Inject constructor(
             )
         }
         return null
+    }
+
+    override fun setNewAmount(newValueString: String) {
+        val newValue = newValueString.toFloatOrNull()
+        currentAmount.setValue(newValue)
+        if (newValue != null) {
+            preferencesManager.setDefaultAmount(newValue)
+        }
+    }
+
+    override fun setNewCurrency(newCurrency: Currency) {
+        currentCurrency.setValue(newCurrency)
+        preferencesManager.setDefaultCurrency(newCurrency)
     }
 }

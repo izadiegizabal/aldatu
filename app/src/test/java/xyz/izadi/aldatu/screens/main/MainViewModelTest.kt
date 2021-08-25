@@ -13,8 +13,10 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import xyz.izadi.aldatu.data.local.Currency
 import xyz.izadi.aldatu.data.local.PreferencesManager
-import xyz.izadi.aldatu.data.repository.CurrencyRepository
+import xyz.izadi.aldatu.domain.usecase.FetchCurrencyListUseCase
+import xyz.izadi.aldatu.domain.usecase.FetchCurrencyRatesUseCase
 import xyz.izadi.aldatu.utils.Constants
+import xyz.izadi.aldatu.utils.setValue
 
 @RunWith(MockitoJUnitRunner::class)
 class MainViewModelTest : TestCase() {
@@ -23,7 +25,10 @@ class MainViewModelTest : TestCase() {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     @Mock
-    lateinit var currencyRepository: CurrencyRepository
+    lateinit var fetchCurrencyListUseCase: FetchCurrencyListUseCase
+
+    @Mock
+    lateinit var fetchCurrencyRatesUseCase: FetchCurrencyRatesUseCase
 
     @Mock
     lateinit var preferencesManager: PreferencesManager
@@ -33,6 +38,7 @@ class MainViewModelTest : TestCase() {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
+        sut = MainViewModel(fetchCurrencyListUseCase, fetchCurrencyRatesUseCase, preferencesManager)
     }
 
     @Test
@@ -40,7 +46,6 @@ class MainViewModelTest : TestCase() {
         // arrange
         `when`(preferencesManager.getDefaultAmount()).thenReturn(Constants.DEFAULT_AMOUNT)
         `when`(preferencesManager.getDefaultCurrency()).thenReturn(Constants.DEFAULT_CURRENCY)
-        sut = MainViewModel(currencyRepository, preferencesManager)
 
         // assert
         assertEquals(null, sut.refreshDate.value)
@@ -55,7 +60,6 @@ class MainViewModelTest : TestCase() {
     @Test
     fun validate_set_new_amount() {
         // arrange
-        sut = MainViewModel(currencyRepository, preferencesManager)
         val newValueString = "345"
 
         // act
@@ -69,7 +73,6 @@ class MainViewModelTest : TestCase() {
     @Test
     fun validate_select_currency() {
         // arrange
-        sut = MainViewModel(currencyRepository, preferencesManager)
         val newCurrency = Currency("USD", "Dollars")
 
         // act
@@ -85,10 +88,8 @@ class MainViewModelTest : TestCase() {
         // arrange
         `when`(preferencesManager.getDefaultAmount()).thenReturn(1f)
         val mockFrom = Currency("EUR", "Euro")
-        `when`(preferencesManager.getDefaultCurrency()).thenReturn(mockFrom)
-        sut = MainViewModel(currencyRepository, preferencesManager)
         val sampleMap = hashMapOf(Pair("USDEUR", 0.85), Pair("USDJPY", 109.22))
-        sut.rates.value = sampleMap
+        sut.rates.setValue(sampleMap)
 
         // act
         val actual = sut.getConversion(from = mockFrom, to = "JPY")
@@ -103,10 +104,8 @@ class MainViewModelTest : TestCase() {
         // arrange
         `when`(preferencesManager.getDefaultAmount()).thenReturn(1f)
         val mockFrom = Currency("EUR", "Euro")
-        `when`(preferencesManager.getDefaultCurrency()).thenReturn(mockFrom)
-        sut = MainViewModel(currencyRepository, preferencesManager)
         val sampleMap = hashMapOf(Pair("USDEUR", 0.85), Pair("USDJPY", 109.22))
-        sut.rates.value = sampleMap
+        sut.rates.setValue(sampleMap)
 
         // act
         val actual = sut.getConversion(from = mockFrom, to = "GBP")

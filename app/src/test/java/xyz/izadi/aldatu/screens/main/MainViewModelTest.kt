@@ -2,10 +2,14 @@ package xyz.izadi.aldatu.screens.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import junit.framework.TestCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
@@ -15,14 +19,20 @@ import xyz.izadi.aldatu.data.local.Currency
 import xyz.izadi.aldatu.data.local.PreferencesManager
 import xyz.izadi.aldatu.domain.usecase.FetchCurrencyListUseCase
 import xyz.izadi.aldatu.domain.usecase.FetchCurrencyRatesUseCase
+import xyz.izadi.aldatu.testUtils.CoroutineTestRule
 import xyz.izadi.aldatu.utils.Constants
 import xyz.izadi.aldatu.utils.setValue
 
+@ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
 class MainViewModelTest : TestCase() {
     @Rule
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
+
+    @Rule
+    @JvmField
+    val coroutineTestRule = CoroutineTestRule()
 
     @Mock
     lateinit var fetchCurrencyListUseCase: FetchCurrencyListUseCase
@@ -36,8 +46,13 @@ class MainViewModelTest : TestCase() {
     private lateinit var sut: MainViewModel
 
     @Before
-    fun setup() {
+    fun setup() = coroutineTestRule.testDispatcher.runBlockingTest {
         MockitoAnnotations.openMocks(this)
+
+        // to not have an coroutine exception
+        `when`(fetchCurrencyListUseCase.invoke()).thenReturn(flowOf())
+        `when`(fetchCurrencyRatesUseCase.invoke(any())).thenReturn(flowOf())
+
         sut = MainViewModel(fetchCurrencyListUseCase, fetchCurrencyRatesUseCase, preferencesManager)
     }
 

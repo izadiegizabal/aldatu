@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import xyz.izadi.aldatu.data.local.Currency
 import xyz.izadi.aldatu.data.local.CurrencyRate
@@ -57,22 +58,26 @@ class MainViewModel @Inject constructor(
     }
 
     fun loadCurrencies(forceRefresh: Boolean = false) {
-        viewModelScope.launch(Dispatchers.IO) {
-            fetchCurrencyListUseCase.invoke().collect {
-                if (it.status == Result.Status.SUCCESS) {
-                    currencyList.postValue(it.data)
+        viewModelScope.launch {
+            fetchCurrencyListUseCase.invoke()
+                .flowOn(Dispatchers.IO).collect {
+                    if (it.status == Result.Status.SUCCESS) {
+                        currencyList.postValue(it.data)
+                    }
                 }
-            }
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            fetchCurrencyRatesUseCase.invoke(forceRefresh).collect {
-                currencyRatesState.postValue(it)
-                if (it.status == Result.Status.SUCCESS) {
-                    rates.postValue(CurrencyRate.from(it.data))
-                    refreshDate.postValue(preferencesManager.getRefreshDate()?.getFormattedString())
-                    currencyRates.postValue(it.data)
+        viewModelScope.launch {
+            fetchCurrencyRatesUseCase.invoke(forceRefresh)
+                .flowOn(Dispatchers.IO).collect {
+                    currencyRatesState.postValue(it)
+                    if (it.status == Result.Status.SUCCESS) {
+                        rates.postValue(CurrencyRate.from(it.data))
+                        refreshDate.postValue(
+                            preferencesManager.getRefreshDate()?.getFormattedString()
+                        )
+                        currencyRates.postValue(it.data)
+                    }
                 }
-            }
         }
     }
 

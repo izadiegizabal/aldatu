@@ -112,7 +112,7 @@ class MainViewModelTest : TestCase() {
         )
         `when`(preferencesManager.getRefreshDate()).thenReturn(mockDate)
 
-        // assert
+        // act
         sut.loadCurrencies()
 
         // assert
@@ -133,7 +133,7 @@ class MainViewModelTest : TestCase() {
         `when`(fetchCurrencyListUseCase.invoke()).thenReturn(flowOf(Result.loading()))
         `when`(fetchCurrencyRatesUseCase.invoke(anyBoolean())).thenReturn(flowOf(Result.loading()))
 
-        // assert
+        // act
         sut.loadCurrencies()
 
         // assert
@@ -165,7 +165,7 @@ class MainViewModelTest : TestCase() {
             )
         )
 
-        // assert
+        // act
         sut.loadCurrencies()
 
         // assert

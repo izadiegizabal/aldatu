@@ -1,10 +1,8 @@
 package xyz.izadi.aldatu.di
 
-import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import xyz.izadi.aldatu.data.local.CurrencyListDao
 import xyz.izadi.aldatu.data.local.CurrencyRatesDao
@@ -25,9 +23,8 @@ class RepositoryModule {
         api: CurrencyApi,
         listDao: CurrencyListDao,
         ratesDao: CurrencyRatesDao,
-        @ApplicationContext appContext: Context,
         prefManager: PreferencesManager
-    ): CurrencyRepository = CurrencyRepositoryImpl(api, listDao, ratesDao, appContext, prefManager)
+    ): CurrencyRepository = CurrencyRepositoryImpl(api, listDao, ratesDao, prefManager)
 
     @Singleton
     @Provides

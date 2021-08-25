@@ -15,24 +15,31 @@ import xyz.izadi.aldatu.R
 import xyz.izadi.aldatu.ui.components.InfoSection
 
 @Composable
-fun ErrorSection(onRetry: () -> Unit, onSecondary: (() -> Unit)? = null) {
+fun ErrorSection(
+    primaryText: String?,
+    secondaryText: String?,
+    onPrimary: (() -> Unit)?,
+    onSecondary: (() -> Unit)? = null
+) {
     InfoSection(
         icon = Icons.TwoTone.Error,
         text = stringResource(R.string.ms_error_fetching_rates),
         actionSection = {
-            Button(onClick = { onRetry() }) {
-                Text(
-                    text = stringResource(R.string.ms_btn_error_fetching_rates_try_again),
-                    textAlign = TextAlign.Center
-                )
+            onPrimary?.takeIf { primaryText != null }?.let {
+                Button(onClick = { onPrimary() }) {
+                    Text(
+                        text = primaryText ?: "",
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-            onSecondary?.let {
+            onSecondary?.takeIf { secondaryText != null }?.let {
                 OutlinedButton(
                     onClick = { onSecondary() },
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.ms_btn_error_fetching_not_optimal),
+                        text = secondaryText ?: "",
                         textAlign = TextAlign.Center
                     )
                 }

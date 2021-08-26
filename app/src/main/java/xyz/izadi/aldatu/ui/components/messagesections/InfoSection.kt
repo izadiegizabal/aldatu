@@ -1,4 +1,4 @@
-package xyz.izadi.aldatu.ui.components
+package xyz.izadi.aldatu.ui.components.messagesections
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 fun InfoSection(
     icon: ImageVector? = null,
     text: String? = null,
-    actionSection: @Composable() (() -> Unit)? = null,
+    actionSection: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit = {}
 ) {
     Column(

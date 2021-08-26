@@ -8,8 +8,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import org.junit.Rule
 import org.junit.Test
-import xyz.izadi.aldatu.ui.components.BaseContainer
-import xyz.izadi.aldatu.ui.components.Header
 
 class HeaderTest {
 

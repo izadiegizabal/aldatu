@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import xyz.izadi.aldatu.data.repository.Result
 import xyz.izadi.aldatu.screens.main.MainViewModel
 import xyz.izadi.aldatu.ui.components.messagesections.LoadingSection
-import xyz.izadi.aldatu.ui.components.messagesections.SelectAmountFirstSection
 
 @Composable
 fun MainView(vm: MainViewModel) {

@@ -96,7 +96,9 @@ class CurrencyRepositoryImplTest : TestCase() {
         }
         val mockResponse = Response.success(mockCurrencyListResponse)
         `when`(currencyListDao.doWeHaveCurrencies()).thenReturn(false)
-        `when`(currencyApi.getSupportedCountries()).thenReturn(mockResponse)
+        runCatching {
+            `when`(currencyApi.getSupportedCountries()).thenReturn(mockResponse)
+        }
 
         // act
         val actual = sut.getCurrencies()
@@ -114,7 +116,9 @@ class CurrencyRepositoryImplTest : TestCase() {
             // arrange
             val mockError = NoInternetConnectionException()
             `when`(currencyListDao.doWeHaveCurrencies()).thenReturn(false)
-            `when`(currencyApi.getSupportedCountries()).thenThrow(IOException(mockError))
+            runCatching {
+                `when`(currencyApi.getSupportedCountries()).thenThrow(IOException(mockError))
+            }
 
             // act
             var actual: Exception? = null
@@ -135,7 +139,9 @@ class CurrencyRepositoryImplTest : TestCase() {
 
             val mockRes = Response.error<CurrencyListResponse>(401, "Error".toResponseBody())
             `when`(currencyListDao.doWeHaveCurrencies()).thenReturn(false)
-            `when`(currencyApi.getSupportedCountries()).thenReturn(mockRes)
+            runCatching {
+                `when`(currencyApi.getSupportedCountries()).thenReturn(mockRes)
+            }
 
             // act
             var actual: Exception? = null

@@ -12,7 +12,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import xyz.izadi.aldatu.R
-import xyz.izadi.aldatu.ui.components.InfoSection
 
 @Composable
 fun ErrorSection(

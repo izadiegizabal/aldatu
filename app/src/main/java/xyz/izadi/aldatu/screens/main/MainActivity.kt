@@ -18,8 +18,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import dagger.hilt.android.AndroidEntryPoint
-import xyz.izadi.aldatu.ui.components.BaseContainer
 import xyz.izadi.aldatu.screens.main.ui.MainView
+import xyz.izadi.aldatu.ui.components.BaseContainer
 import xyz.izadi.aldatu.ui.components.currencyselector.CurrencySelector
 
 @AndroidEntryPoint

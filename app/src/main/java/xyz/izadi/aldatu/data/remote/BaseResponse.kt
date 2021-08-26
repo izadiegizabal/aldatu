@@ -7,7 +7,6 @@ open class BaseResponse {
 
     class Error {
         val code: Int = 0
-        val info: String? = null
     }
-    
+
 }

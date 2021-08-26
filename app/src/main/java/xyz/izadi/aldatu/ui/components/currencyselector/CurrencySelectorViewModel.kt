@@ -10,4 +10,5 @@ interface CurrencySelectorViewModel {
 
     fun setNewCurrency(newCurrency: Currency)
     fun setNewAmount(newValueString: String)
+    fun fetchCurrencyList()
 }

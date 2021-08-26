@@ -41,9 +41,7 @@ fun MainView(vm: MainViewModel) {
                         item {
                             Spacer(modifier = Modifier.height(72.dp))
                         }
-                    } ?: item {
-                        MainErrorSection(vm, shouldShowLoadNonOptimal)
-                    }
+                    } ?: item { LoadingSection() }
                 }
             }
         } ?: item { SelectAmountFirstSection() }

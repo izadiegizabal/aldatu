@@ -40,6 +40,8 @@ fun CurrencySelector(
 
     if (!sheetState.isVisible) {
         hideKeyboard(activity)
+    } else if (currencyList?.isEmpty() == true) {
+        vm.fetchCurrencyList()
     }
 
     ModalBottomSheetLayout(

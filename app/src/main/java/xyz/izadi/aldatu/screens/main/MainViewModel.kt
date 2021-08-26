@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -52,21 +53,38 @@ class MainViewModel @Inject constructor(
     override val currentCurrency: LiveData<Currency?> by lazy {
         MutableLiveData(preferencesManager.getDefaultCurrency())
     }
+    var fetchCurrencyListJob: Job? = null
+    var fetchCurrencyRatesJob: Job? = null
 
     init {
         loadCurrencies()
     }
 
     fun loadCurrencies(forceRefresh: Boolean = false) {
-        viewModelScope.launch {
-            fetchCurrencyListUseCase.invoke()
-                .flowOn(Dispatchers.IO).collect {
-                    if (it.status == Result.Status.SUCCESS) {
-                        currencyList.postValue(it.data)
-                    }
-                }
+        fetchCurrencyList()
+        fetchCurrencyRates(forceRefresh)
+    }
+
+    fun getConversion(from: Currency?, to: String): Float? {
+        rates.value?.let {
+            return CurrencyRate.convert(
+                currentAmount.value ?: 1f,
+                from?.currencyCode ?: Constants.DEFAULT_CURRENCY.currencyCode,
+                to.replaceFirst(Constants.API_CURRENCYLAYER_BASECURRENCY, ""),
+                Constants.API_CURRENCYLAYER_BASECURRENCY,
+                it
+            )
         }
-        viewModelScope.launch {
+        return null
+    }
+
+    @VisibleForTesting
+    fun fetchCurrencyRates(forceRefresh: Boolean) {
+        if (fetchCurrencyRatesJob?.isActive == true) {
+            fetchCurrencyRatesJob?.cancel()
+        }
+
+        fetchCurrencyRatesJob = viewModelScope.launch {
             fetchCurrencyRatesUseCase.invoke(forceRefresh)
                 .flowOn(Dispatchers.IO).collect {
                     currencyRatesState.postValue(it)
@@ -81,17 +99,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getConversion(from: Currency?, to: String): Float? {
-        rates.value?.let {
-            return CurrencyRate.convert(
-                currentAmount.value ?: 1f,
-                from?.currencyCode ?: Constants.DEFAULT_CURRENCY.currencyCode,
-                to.replaceFirst(Constants.API_CURRENCYLAYER_BASECURRENCY, ""),
-                Constants.API_CURRENCYLAYER_BASECURRENCY,
-                it
-            )
+    override fun fetchCurrencyList() {
+        if (fetchCurrencyListJob?.isActive == true) {
+            fetchCurrencyListJob?.cancel()
         }
-        return null
+
+        fetchCurrencyListJob = viewModelScope.launch {
+            fetchCurrencyListUseCase.invoke()
+                .flowOn(Dispatchers.IO).collect {
+                    if (it.status == Result.Status.SUCCESS) {
+                        currencyList.postValue(it.data)
+                    }
+                }
+        }
     }
 
     override fun setNewAmount(newValueString: String) {

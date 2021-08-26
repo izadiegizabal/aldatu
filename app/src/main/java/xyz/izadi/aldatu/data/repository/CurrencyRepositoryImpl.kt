@@ -9,7 +9,6 @@ import xyz.izadi.aldatu.data.local.PreferencesManager
 import xyz.izadi.aldatu.data.remote.CurrencyApi
 import xyz.izadi.aldatu.domain.repository.CurrencyRepository
 import xyz.izadi.aldatu.domain.repository.ErrorWhileFetchingException
-import xyz.izadi.aldatu.domain.repository.NoInternetConnectionException
 import javax.inject.Inject
 
 class CurrencyRepositoryImpl @Inject constructor(
@@ -61,14 +60,6 @@ class CurrencyRepositoryImpl @Inject constructor(
                     message = response.message(),
                     errorCode = response.code()
                 )
-            }
-        } else {
-            // try to get existing currencies even though they are outdated to still have functionality
-            val prevRates = currencyRatesDao.loadCurrencyRates()
-            if (!forceRefresh && prevRates.isNotEmpty()) {
-                return prevRates
-            } else {
-                throw NoInternetConnectionException()
             }
         }
         return currencyRatesDao.loadCurrencyRates()

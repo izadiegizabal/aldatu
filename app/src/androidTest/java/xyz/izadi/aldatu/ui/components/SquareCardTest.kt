@@ -35,6 +35,6 @@ class SquareCardTest {
             }
         }
 
-        composeTestRule.onRoot().onChildren().assertCountEquals(0)
+        composeTestRule.onRoot().onChildren().assertCountEquals(1)
     }
 }

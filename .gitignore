@@ -72,3 +72,5 @@ lint/tmp/
 
 # add this file with the proper apikeys
 apikey.properties
+
+.DS_Store

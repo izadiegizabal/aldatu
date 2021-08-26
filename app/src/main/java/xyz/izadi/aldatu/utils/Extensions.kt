@@ -5,9 +5,13 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import java.text.DateFormat
 import java.util.*
 
@@ -54,4 +58,14 @@ fun Context.isNetworkAvailable(): Boolean {
 
 fun Date.getFormattedString(): String {
     return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(this)
+}
+
+fun <T> LiveData<T>.setValue(newValue: T?) {
+    (this as MutableLiveData<T>).value = newValue
+}
+
+fun <T> LiveData<T>.postValue(newValue: T?) {
+    Handler(Looper.getMainLooper()).post {
+        setValue(newValue)
+    }
 }

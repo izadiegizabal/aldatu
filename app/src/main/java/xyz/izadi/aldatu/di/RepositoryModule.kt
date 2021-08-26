@@ -1,15 +1,17 @@
 package xyz.izadi.aldatu.di
 
-import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import xyz.izadi.aldatu.data.local.CurrencyDao
+import xyz.izadi.aldatu.data.local.CurrencyListDao
+import xyz.izadi.aldatu.data.local.CurrencyRatesDao
 import xyz.izadi.aldatu.data.local.PreferencesManager
 import xyz.izadi.aldatu.data.remote.CurrencyApi
-import xyz.izadi.aldatu.data.repository.CurrencyRepository
+import xyz.izadi.aldatu.data.repository.CurrencyRepositoryImpl
+import xyz.izadi.aldatu.domain.repository.CurrencyRepository
+import xyz.izadi.aldatu.domain.usecase.FetchCurrencyListUseCase
+import xyz.izadi.aldatu.domain.usecase.FetchCurrencyRatesUseCase
 import javax.inject.Singleton
 
 @Module
@@ -17,10 +19,20 @@ import javax.inject.Singleton
 class RepositoryModule {
     @Singleton
     @Provides
-    fun providesRepository(
+    fun providesCurrencyRepository(
         api: CurrencyApi,
-        dao: CurrencyDao,
-        @ApplicationContext appContext: Context,
+        listDao: CurrencyListDao,
+        ratesDao: CurrencyRatesDao,
         prefManager: PreferencesManager
-    ) = CurrencyRepository(api, dao, appContext, prefManager)
+    ): CurrencyRepository = CurrencyRepositoryImpl(api, listDao, ratesDao, prefManager)
+
+    @Singleton
+    @Provides
+    fun providesFetchCurrencyListUseCase(repository: CurrencyRepository): FetchCurrencyListUseCase =
+        FetchCurrencyListUseCase(repository)
+
+    @Singleton
+    @Provides
+    fun providesFetchCurrencyRatesUseCase(repository: CurrencyRepository): FetchCurrencyRatesUseCase =
+        FetchCurrencyRatesUseCase(repository)
 }

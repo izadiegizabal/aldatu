@@ -53,8 +53,8 @@ class MainViewModel @Inject constructor(
     override val currentCurrency: LiveData<Currency?> by lazy {
         MutableLiveData(preferencesManager.getDefaultCurrency())
     }
-    var fetchCurrencyListJob: Job? = null
-    var fetchCurrencyRatesJob: Job? = null
+    private var fetchCurrencyListJob: Job? = null
+    private var fetchCurrencyRatesJob: Job? = null
 
     init {
         loadCurrencies()
@@ -78,17 +78,14 @@ class MainViewModel @Inject constructor(
         return null
     }
 
-    @VisibleForTesting
-    fun fetchCurrencyRates(forceRefresh: Boolean) {
-        if (fetchCurrencyRatesJob?.isActive == true) {
-            fetchCurrencyRatesJob?.cancel()
-        }
+    private fun fetchCurrencyRates(forceRefresh: Boolean) {
+        if (fetchCurrencyRatesJob?.isActive == true) return
 
         fetchCurrencyRatesJob = viewModelScope.launch {
             fetchCurrencyRatesUseCase.invoke(forceRefresh)
                 .flowOn(Dispatchers.IO).collect {
                     currencyRatesState.postValue(it)
-                    if (it.status == Result.Status.SUCCESS) {
+                    if (it.status == Result.Status.SUCCESS && it.data?.isNotEmpty() == true) {
                         rates.postValue(CurrencyRate.from(it.data))
                         refreshDate.postValue(
                             preferencesManager.getRefreshDate()?.getFormattedString()
@@ -100,14 +97,12 @@ class MainViewModel @Inject constructor(
     }
 
     override fun fetchCurrencyList() {
-        if (fetchCurrencyListJob?.isActive == true) {
-            fetchCurrencyListJob?.cancel()
-        }
+        if (fetchCurrencyListJob?.isActive == true) return
 
         fetchCurrencyListJob = viewModelScope.launch {
             fetchCurrencyListUseCase.invoke()
                 .flowOn(Dispatchers.IO).collect {
-                    if (it.status == Result.Status.SUCCESS) {
+                    if (it.status == Result.Status.SUCCESS && it.data?.isNotEmpty() == true) {
                         currencyList.postValue(it.data)
                     }
                 }

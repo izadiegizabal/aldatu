@@ -21,17 +21,15 @@ fun MainView(vm: MainViewModel) {
     val currentAmount by vm.currentAmount.observeAsState()
     val rates by vm.currencyRates.observeAsState()
 
-    val shouldShowLoadNonOptimal = rates?.isNotEmpty() == true
-
     LazyColumn {
         item { MainHeader(refreshDate) }
         currentAmount?.takeIf { it > 0f }?.let {
             when (currencyRatesState?.status) {
-                Result.Status.LOADING -> {
-                    item { LoadingSection() }
+                Result.Status.LOADING -> item {
+                    LoadingSection()
                 }
-                Result.Status.ERROR -> {
-                    item { MainErrorSection(vm, shouldShowLoadNonOptimal) }
+                Result.Status.ERROR -> item {
+                    MainErrorSection(vm, rates?.isNotEmpty() == true)
                 }
                 else -> {
                     rates?.takeIf { it.isNotEmpty() }?.let { rates ->
@@ -41,9 +39,13 @@ fun MainView(vm: MainViewModel) {
                         item {
                             Spacer(modifier = Modifier.height(72.dp))
                         }
-                    } ?: item { LoadingSection() }
+                    } ?: item {
+                        MainErrorSection(vm, rates?.isNotEmpty() == true)
+                    }
                 }
             }
-        } ?: item { SelectAmountFirstSection() }
+        } ?: item {
+            SelectAmountFirstSection()
+        }
     }
 }

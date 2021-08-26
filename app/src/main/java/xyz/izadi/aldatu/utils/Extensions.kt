@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
@@ -65,7 +63,5 @@ fun <T> LiveData<T>.setValue(newValue: T?) {
 }
 
 fun <T> LiveData<T>.postValue(newValue: T?) {
-    Handler(Looper.getMainLooper()).post {
-        setValue(newValue)
-    }
+    (this as MutableLiveData<T>).postValue(newValue)
 }

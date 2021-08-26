@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import xyz.izadi.aldatu.ui.components.CurrencyFab
+import xyz.izadi.aldatu.utils.asPrettyString
 import xyz.izadi.aldatu.utils.getActivity
 import xyz.izadi.aldatu.utils.hideKeyboard
 
@@ -48,7 +49,7 @@ fun CurrencySelector(
                 item {
                     AmountSelector(
                         selectedCurrency = selectedCurrency,
-                        currentAmount = currentAmount,
+                        startValue = currentAmount?.asPrettyString() ?: "",
                         modifier = Modifier
                             .fillParentMaxWidth()
                             .padding(16.dp),
@@ -57,9 +58,10 @@ fun CurrencySelector(
                                 hideKeyboard(activity)
                                 sheetState.hide()
                             }
-                        },
-                        onValueChanged = { newValue -> vm.setNewAmount(newValue) }
-                    )
+                        }
+                    ) { newValue ->
+                        vm.setNewAmount(newValue)
+                    }
                 }
                 currencyList?.takeIf { it.isNotEmpty() }?.let { currencies ->
                     items(currencies) {
